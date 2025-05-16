@@ -16,7 +16,7 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 
 def setup_llm_chain(topic="technology"):
     prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a joke-generating assistant. Generate only ONE joke on the given topic and just give the joke."),
+            ("system", "You are a joke-generating assistant. Generate only ONE joke and just give the joke on the given topic, dont give the thinking part, just deliver the joke."),
             ("user", f"generate a joke on the topic: {topic}")
     ])
 
