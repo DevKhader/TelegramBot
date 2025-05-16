@@ -28,7 +28,17 @@ def setup_llm_chain(topic="technology"):
     return prompt|llm|StrOutputParser()
 
 def clean_joke(joke):
-    cleaned_joke = re.sub(r"<.*?>", "", joke, flags=re.S).strip()
+    joke = re.sub(r"<.*?>", "", joke, flags=re.S).strip()
+    joke_lines = joke.split("\n")
+    cleaned_joke_lines = [
+        line for line in joke_lines 
+        if not re.search(r"thinking|thinking out loud|plan|steps|alright|hmm", line, re.IGNORECASE)
+    ]
+    cleaned_joke = "\n".join(cleaned_joke_lines).strip()
+
+    if len(cleaned_joke.split("\n")) > 2:
+        cleaned_joke = "\n".join(cleaned_joke.split("\n")[-2:])
+    
     return cleaned_joke
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
