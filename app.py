@@ -16,7 +16,7 @@ groq_api_key = os.getenv("GROQ_API_KEY")
 
 def setup_llm_chain(topic="technology"):
     prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a joke-generating assistant. Generate only ONE joke and just give the joke on the given topic, dont give the thinking part, just deliver the joke."),
+            ("system", "You are a joke-generating assistant. Generate only ONE joke on the given topic"),
             ("user", f"generate a joke on the topic: {topic}")
     ])
 
@@ -27,6 +27,10 @@ def setup_llm_chain(topic="technology"):
 
     return prompt|llm|StrOutputParser()
 
+def clean_joke(joke):
+    cleaned_joke = re.sub(r"<.*?>", "", joke, flags=re.S).strip()
+    return cleaned_joke
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hi! Mention me with a topic like '@Joker_PY_Bot python'")
 
@@ -35,7 +39,10 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def generate_joke(update: Update, context: ContextTypes.DEFAULT_TYPE, topic: str):
     await update.message.reply_text(f"Generating a joke about {topic}")
-    joke = setup_llm_chain(topic).invoke({}).strip()
+    response = setup_llm_chain(topic).invoke({}).strip()
+    joke = clean_joke(response)
+    if not joke:
+        joke = "Oops! I couldn't come up with a joke. Try another topic."
     await update.message.reply_text(joke)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
